@@ -1,0 +1,376 @@
+<!doctype html>
+<!--
+Contract Lab
+
+MIT License
+
+Copyright (c) 2026 flxk1
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><title>Contract Lab</title><style>*{box-sizing:border-box}html,body{margin:0;background:#fff;color:#111;font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{height:100vh;height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px;max-width:1800px;margin:auto}.chat{min-width:0;min-height:0;border:1px solid #ddd;border-radius:9px;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto}.name{overflow-wrap:anywhere;font-size:14px;font-weight:600;padding:12px 15px;border-bottom:1px solid #e5e5e5}.feed{min-height:0;overflow:auto;padding:15px}.message{font-size:14px;max-width:93%;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 15px}.sent{margin-left:auto;border-right:1px solid #ccc;padding-right:10px}.received{border-left:1px solid #ccc;padding-left:10px}.internal,.system{max-width:100%;font-size:11px;color:#666}.meta{font-size:10px;color:#666;margin-bottom:3px}.skills{border-top:1px solid #ddd;min-height:0}.skill-toggle{border:0;background:#fff;color:#111;font:600 12px/1.5 system-ui;text-align:left;width:100%;padding:10px 15px;cursor:pointer}.editor{padding:0 10px 8px}.editor[hidden]{display:none}.editor textarea{display:block;width:100%;height:clamp(160px,32dvh,310px);resize:none;border:0;background:#fff;color:#111;padding:4px 5px;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;border-radius:0}.error{color:#111;font-size:11px;white-space:pre-wrap;padding:0 5px}.error:empty{display:none}button:focus-visible,textarea:focus-visible{outline:1px solid #111;outline-offset:-1px}@media(min-width:1500px){.message{font-size:17px}.internal,.system{font-size:13px}.name{font-size:17px}.editor textarea{font-size:14px}}@media(max-width:700px){main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);padding:8px;gap:9px}.name{padding:7px 12px;font-size:13px}.feed{padding:10px}.message{font-size:12px;margin-bottom:10px}.internal,.system,.meta{font-size:10px}.skill-toggle{padding:6px 12px}.editor{padding:0 8px 5px}.editor textarea{height:clamp(90px,18dvh,175px);font-size:12px;line-height:1.5}}.run-controls{grid-column:1/-1;display:flex;justify-content:center;gap:8px}.run-controls button{min-height:44px;padding:8px 24px;background:#fff;color:#111;border:1px solid #ccc;border-radius:6px;font:13px system-ui;cursor:pointer}.run-controls button:disabled{color:#999;cursor:default}main{grid-template-rows:minmax(0,1fr) auto}@media(max-width:700px){main{grid-template-rows:minmax(0,1fr) minmax(0,1fr) auto}.run-controls button{flex:1;padding:7px 12px}}.rule-trace{font-size:11px;color:#666;margin:4px 5px 0}.rule-trace summary{cursor:pointer}.rule-trace pre{font:11px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:auto;margin:6px 0}.skills{max-height:65dvh;overflow:auto}@media(max-width:700px){.skills{max-height:29dvh}.rule-trace pre{max-height:90px}}.skill-panel{margin:0 5px;border-top:1px solid #eee}.skill-panel:first-child{border-top:0}.skill-panel>summary{font:500 12px/1.6 system-ui;cursor:pointer;padding:6px 0}.guardrail-switch{display:flex;align-items:center;gap:7px;font-size:12px;padding:2px 0 6px}.guardrail-switch input{accent-color:#111;width:16px;height:16px;margin:0}.editor textarea.role-editor{height:100px}.editor textarea.guard-editor{height:150px}.skill-panel>summary span{font-weight:400;color:#666}@media(max-width:700px){.skill-panel>summary{font-size:11px;padding:4px 0}.editor textarea.role-editor{height:86px}.editor textarea.guard-editor{height:130px}}.message.complete{font-weight:600;color:#111;border-top:1px solid #ddd;padding-top:10px}.message.summary{max-width:100%;font-size:12px;line-height:1.65;border:1px solid #ddd;border-radius:5px;padding:10px;color:#111}.summary .meta{font-weight:600;color:#111}@media(max-width:700px){.message.summary{font-size:11px;padding:8px}}</style></head><body><noscript><p style="margin:16px;padding:12px 16px;border:1px solid #c00;color:#c00;font:15px/1.5 system-ui">JavaScript is turned off in this browser, so the buttons cannot work. Turn JavaScript on in the browser's settings and reload this page.</p></noscript><main aria-label="Agent workspace"><section class="chat" aria-label="Buyer agent"><div class="name" id="buyerName">Buyer</div><div id="buyerFeed" class="feed" role="log" aria-label="Buyer conversation"></div><section class="skills" aria-label="Private buyer skill"><button class="skill-toggle" id="buyerToggle" aria-controls="buyerEditor" aria-expanded="true">Skill</button><div id="buyerEditor" class="editor"><details class="skill-panel" id="buyerRolePanel"><summary>Role &amp; goal</summary><textarea id="buyerRole" class="role-editor" spellcheck="false" aria-label="Private role and goal"></textarea></details><details class="skill-panel" id="buyerGuardrailsPanel"><summary>Guardrails <span id="buyerGuardStatus">· on</span></summary><label class="guardrail-switch"><input type="checkbox" id="buyerGuardsEnabled" checked> Apply guardrails</label><textarea id="buyerGuardrails" class="guard-editor" spellcheck="false" aria-label="Private guardrails"></textarea></details><details class="skill-panel" id="buyerBehaviorPanel"><summary>Skill &amp; economics</summary><textarea id="buyerSkill" spellcheck="false" aria-label="Private skill and economics" aria-describedby="buyerError"></textarea></details><div id="buyerError" class="error" role="alert"></div><details class="rule-trace"><summary>Rule trace</summary><pre id="buyerTrace"></pre></details></div></section></section><section class="chat" aria-label="Seller agent"><div class="name" id="sellerName">Seller</div><div id="sellerFeed" class="feed" role="log" aria-label="Seller conversation"></div><section class="skills" aria-label="Private seller skill"><button class="skill-toggle" id="sellerToggle" aria-controls="sellerEditor" aria-expanded="true">Skill</button><div id="sellerEditor" class="editor"><details class="skill-panel" id="sellerRolePanel"><summary>Role &amp; goal</summary><textarea id="sellerRole" class="role-editor" spellcheck="false" aria-label="Private role and goal"></textarea></details><details class="skill-panel" id="sellerGuardrailsPanel"><summary>Guardrails <span id="sellerGuardStatus">· on</span></summary><label class="guardrail-switch"><input type="checkbox" id="sellerGuardsEnabled" checked> Apply guardrails</label><textarea id="sellerGuardrails" class="guard-editor" spellcheck="false" aria-label="Private guardrails"></textarea></details><details class="skill-panel" id="sellerBehaviorPanel"><summary>Skill &amp; economics</summary><textarea id="sellerSkill" spellcheck="false" aria-label="Private skill and economics" aria-describedby="sellerError"></textarea></details><div id="sellerError" class="error" role="alert"></div><details class="rule-trace"><summary>Rule trace</summary><pre id="sellerTrace"></pre></details></div></section></section><div class="run-controls" aria-label="Simulation controls"><button id="start" type="button">Start</button><button id="step" type="button">Step</button><button id="pause" type="button" disabled>Pause</button><button id="stop" type="button" disabled>Stop</button><button id="reset" type="button">Reset</button></div></main><script id="engine">const copy=value=>JSON.parse(JSON.stringify(value));
+const own=(object,key)=>Object.prototype.hasOwnProperty.call(object,key);
+const money=cents=>new Intl.NumberFormat('en-IE',{style:'currency',currency:'EUR'}).format(cents/100);
+class SkillError extends Error{}
+function expression(source,context,depth=0){
+ if(source.length>2048)throw new SkillError('Expression exceeds the 2048-character limit.');
+ if(depth>20)throw new SkillError("Cyclic or excessively nested private expression.");
+ const tokens=[];let cursor=0;const pattern=/\s*(?:(\d+(?:\.\d+)?)|([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|([()+\-*/,]))/y;
+ while(cursor<source.length){pattern.lastIndex=cursor;const m=pattern.exec(source);if(!m)throw new SkillError('Cannot read expression: '+source);tokens.push(m[1]!==undefined?{kind:'number',value:Number(m[1])}:m[2]?{kind:'name',value:m[2]}:m[3]?{kind:'string',value:m[3][0]==='"'?JSON.parse(m[3]):m[3].slice(1,-1)}:{kind:m[4],value:m[4]});cursor=pattern.lastIndex;}
+ if(tokens.length>512)throw new SkillError('Expression exceeds the 512-token limit.');
+ let index=0;const take=kind=>tokens[index]?.kind===kind?tokens[index++]:null;
+ function number(value){if(typeof value!=='number'||!Number.isFinite(value))throw new SkillError('A numeric rule used a missing or non-numeric value.');return value;}
+ function atom(){if(take('-'))return -number(atom());if(take('+'))return number(atom());if(take('(')){const value=add();if(!take(')'))throw new SkillError('Missing closing parenthesis.');return value;}const token=tokens[index++];if(!token)throw new SkillError('Incomplete expression.');if(token.kind==='number'||token.kind==='string')return token.value;if(token.kind!=='name')throw new SkillError('Unexpected expression token.');const name=token.value;if(take('(')){if(!['min','max','abs','round','optional','min_set','max_set','pow','quality_value','prospect'].includes(name))throw new SkillError('Unsupported function: '+name);const args=[];if(!take(')')){do{args.push(add());}while(take(','));if(!take(')'))throw new SkillError('Missing closing parenthesis.');}if(!args.length)throw new SkillError('Function needs an argument.');if(name==='quality_value'){if(args.length!==4)throw new SkillError('quality_value needs quality and basic/standard/premium values.');const quality=args[0];if(quality===null||quality==='none')return 0;if(!['basic','standard','premium'].includes(quality))throw new SkillError('Quality must be basic, standard or premium.');args.slice(1).forEach(number);return args[['basic','standard','premium'].indexOf(quality)+1];}if(name==='optional'){if(args.length!==1||typeof args[0]!=='string'||!/^([A-Za-z_]\w*)$/.test(args[0])||['message','state','turn','event','own_price','memory','round','deal','outcome','constructor','prototype','__proto__'].includes(args[0]))throw new SkillError('optional needs one quoted private field name.');return own(context,args[0])?expression(args[0],context,depth+1):null;}if(name==='min_set'||name==='max_set'){const values=args.filter(v=>v!==null).map(number);return values.length?Math[name==='min_set'?'min':'max'](...values):null;}args.forEach(number);if(name==='pow'){if(args.length!==2)throw new SkillError('pow needs two numbers.');return Math.pow(...args);}if(name==='prospect'){if(args.length!==4||args[1]<=0||args[2]<=0||args[3]<=0)throw new SkillError('prospect needs gain, positive gain/loss exponents and a positive loss weight.');return args[0]>=0?Math.pow(args[0],args[1]):-args[3]*Math.pow(-args[0],args[2]);}if((name==='abs'||name==='round')&&args.length!==1)throw new SkillError(name+' needs one argument.');return Math[name](...args);}if(name==='true')return true;if(name==='false')return false;if(['none','null'].includes(name))return null;let value=context;for(const part of name.split('.')){if(['__proto__','constructor','prototype'].includes(part)||value==null||!own(Object(value),part))throw new SkillError('Unknown value: '+name);value=value[part];}return typeof value==='string'&&value.startsWith('$')&&!name.includes('.')&&!['message','event','own_price','turn','state','memory','round','deal','outcome'].includes(name)?expression(value.slice(1),context,depth+1):value;}
+ function multiply(){let value=atom();while(tokens[index]&&['*','/'].includes(tokens[index].kind)){const op=tokens[index++].kind,right=number(atom());if(op==='/'&&right===0)throw new SkillError('Division by zero.');value=op==='*'?number(value)*right:number(value)/right;}return value;}
+ function add(){let value=multiply();while(tokens[index]&&['+','-'].includes(tokens[index].kind)){const op=tokens[index++].kind,right=number(multiply());value=op==='+'?number(value)+right:number(value)-right;}return value;}
+ const result=add();if(index!==tokens.length)throw new SkillError('Extra text in expression: '+source);if(typeof result==='number'&&!Number.isFinite(result))throw new SkillError('Non-finite numeric result.');return result;
+}
+function splitOutside(text,delimiter){const parts=[];let quote=null,depth=0,start=0;for(let i=0;i<text.length;i++){const ch=text[i];if(quote){if(ch==='\\')i++;else if(ch===quote)quote=null;continue;}if(ch==='"'||ch==="'"){quote=ch;continue;}if('({['.includes(ch))depth++;if(')}]'.includes(ch))depth--;if(depth===0&&text.startsWith(delimiter,i)){parts.push(text.slice(start,i).trim());i+=delimiter.length-1;start=i+1;}}parts.push(text.slice(start).trim());return parts;}
+function parsePayload(text){return JSON.parse(text,(key,value)=>{if(typeof value==='number'&&!Number.isFinite(value))throw new SkillError('Message numbers must be finite.');return value;});}
+function parseConstant(text){if(!text)throw new SkillError('A field value is missing.');if(text[0]==='"')return JSON.parse(text);if(/^(true|false)$/i.test(text))return text.toLowerCase()==='true';if(/^(none|null)$/i.test(text))return null;if(/^-?\d+(?:\.\d+)?$/.test(text)){const number=Number(text);if(!Number.isFinite(number))throw new SkillError('Numeric fields must be finite.');return number;}return text;}
+const GUARD_FIELDS=new Set(['fallback','batna','limit','can_accept','can_offer','min_quality','max_delivery','required_payment','max_turns','stock']);
+function validateTradeData(data){
+ for(const key of ['quantity','delivery_days'])if(own(data,key)&&(key==='quantity'||data[key]!==null)){const v=data[key];if(typeof v!=='number'||!Number.isFinite(v)||(key==='quantity'?v<=0:v<0))throw new SkillError(key==='quantity'?'Quantity must be a positive finite number.':'Delivery days must be a non-negative finite number.');}
+ if(own(data,'item')&&data.item!==null&&(typeof data.item!=='string'||!data.item.trim()))throw new SkillError('Item must be a non-empty description.');
+ if(own(data,'quality')&&data.quality!==null&&!['basic','standard','premium'].includes(data.quality))throw new SkillError('Quality must be basic, standard or premium.');
+}
+function validatePrivateInputs(skill){
+ const commercial=action=>action.kind==='sequence'?action.actions.some(commercial):['deliver','pay','accept','confirm'].includes(action.kind)||action.kind==='send'&&['request','counter','offer'].includes(action.type);if(!skill.rules.some(rule=>commercial(rule.action)))return;
+ const nonnegative=new Set(['delivery_days','max_delivery','stock','opening','fallback','batna','cost_basic','cost_standard','cost_premium','production_cost','prior_good','prior_bad']);
+ for(const [key,raw]of Object.entries(skill.vars)){if(!nonnegative.has(key)&&!['quantity','can_offer','can_accept','min_quality','quality','actual_quality','required_payment'].includes(key))continue;let v=raw;if(typeof raw==='string'&&raw.startsWith('$')){try{v=expression(raw.slice(1),skill.vars);}catch(error){if(/Unknown value: (message|state|own_price|turn|memory|round|deal|outcome)(\.|$)/.test(error.message))continue;throw error;}}if(v===null&&key!=='quantity')continue;let problem=null;if(['min_quality','quality','actual_quality'].includes(key)){if(!['basic','standard','premium'].includes(v))problem=key+' must be basic, standard or premium.';}else if(key==='required_payment'){if(typeof v!=='string'||!v.trim())problem='required_payment must be a non-empty payment condition.';}else if(['can_offer','can_accept'].includes(key)){if(typeof v!=='boolean')problem=key+' must be true, false or none.';}else if(typeof v!=='number'||!Number.isFinite(v)||(key==='quantity'?v<=0:v<0))problem=key+' must be '+(key==='quantity'?'positive':'non-negative')+' and finite.';if(problem){const line=skill.source.split('\n').findIndex(raw=>new RegExp('^\\s*'+key+'\\s*:').test(raw))+1;const issue=new SkillError('Line '+line+': '+problem);issue.line=line;throw issue;}}
+ if(own(skill.vars,'prior_good')&&own(skill.vars,'prior_bad')&&skill.vars.prior_good===0&&skill.vars.prior_bad===0)throw new SkillError('prior_good and prior_bad cannot both be zero.');
+}
+function enforceGuardrails(skill,action,terms,agent){
+ const keys=new Set(skill.guardrails||[]),context={...copy(skill.vars),message:copy(terms),state:copy(agent.state),memory:copy(agent.memory||{}),turn:agent.turn,round:agent.round||1,deal:copy(agent.deal||null),outcome:copy(agent.outcome||null),own_price:agent.state.lastSent?.price??skill.vars.opening??null};
+ const value=key=>keys.has(key)?expression(key,context):null;const fail=text=>{throw new SkillError('Guardrail blocked '+action+': '+text);};
+ if(value(action==='offer'?'can_offer':'can_accept')===false)fail('authority is disabled.');const limit=value('limit');if(limit!==null){if(typeof limit!=='number'||!Number.isFinite(limit)||limit<0)fail('price limit must be non-negative and finite.');if(action==='offer'&&terms.price<limit)fail('price is below the private floor.');if(action==='acceptance'&&terms.price>limit)fail('price exceeds the private ceiling.');}
+ if(action==='offer'){const stock=value('stock');if(stock!==null&&terms.quantity!=null&&terms.quantity>stock)fail('insufficient stock.');}
+ if(action==='acceptance'){const quality=value('min_quality'),days=value('max_delivery'),payment=value('required_payment');if(quality!==null&&(!['basic','standard','premium'].includes(terms.quality)||['basic','standard','premium'].indexOf(terms.quality)<['basic','standard','premium'].indexOf(quality)))fail('required quality is not met.');if(days!==null&&(typeof terms.delivery_days!=='number'||terms.delivery_days>days))fail('required delivery time is not met.');if(payment!==null&&terms.payment!==payment)fail('required payment terms are not met.');}
+}
+function compileSkill(source){if(source.length>65536)throw new SkillError('Skill exceeds the 65536-character limit.');const vars={},rules=[],guardrails=[];let guardMode=null;const reserved=new Set(['message','event','own_price','turn','state','memory','round','deal','outcome','__proto__','constructor','prototype']);for(const [i,raw]of source.split('\n').entries()){const line=raw.trim();if(/^#\s*Guardrails\s*$/i.test(line)){guardMode=true;continue;}if(/^#\s*(Skill|Role)/i.test(line)){guardMode=false;continue;}if(!line||line.startsWith('#'))continue;try{if(/^when\s/i.test(line)){const m=line.match(/^when\s+([A-Za-z_]\w*)(?:\s+if\s+(.+?))?\s*->\s*(.+)$/i);if(!m)throw new SkillError('Use: when event [if condition] -> action');const action=parseAction(m[3]);rules.push({event:m[1].toLowerCase(),condition:m[2]||'',action,line:i+1,source:line});}else{const m=line.match(/^([A-Za-z_]\w*)\s*:\s*(.*)$/);if(!m)throw new SkillError('Use a key: value field or a when event -> action rule.');const key=m[1].toLowerCase();if(reserved.has(key))throw new SkillError('Reserved field name: '+key);if(own(vars,key))throw new SkillError('Duplicate field: '+key);vars[key]=parseConstant(m[2].trim());if(guardMode===true||guardMode===null&&GUARD_FIELDS.has(key))guardrails.push(key);}}catch(error){throw new SkillError('Line '+(i+1)+': '+error.message);}}
+ if(!Object.keys(vars).length&&!rules.length)throw new SkillError('The skill is empty.');if(!rules.length)throw new SkillError('Add a behaviour rule, for example: when request -> reply "How can I help?"');const skill={vars,rules,source,guardrails};for(const [key,value]of Object.entries(vars)){if(typeof value!=='string'||!value.startsWith('$'))continue;try{expression(value.slice(1),vars);}catch(error){if(/Unknown value: (message|state|own_price|turn|memory|round|deal|outcome)(\.|$)/.test(error.message))continue;const line=source.split('\n').findIndex(raw=>new RegExp('^\\s*'+key+'\\s*:').test(raw))+1;const issue=new SkillError('Line '+line+': cannot calculate '+key+': '+error.message);issue.line=line;throw issue;}}validatePrivateInputs(skill);validateStaticOffers(skill);return skill;}
+function validateStaticOffers(skill){
+ function check(action,rule){if(action.kind==='sequence'){for(const child of action.actions)check(child,rule);return;}if(action.kind!=='send'||action.type!=='offer')return;
+ const raw=action.payload.price;let value=raw;
+ if(typeof raw==='string'&&raw.startsWith('$')){try{value=expression(raw.slice(1),skill.vars);}catch(error){if(/Unknown value: (message|state|own_price|turn|memory|round|deal|outcome)(\.|$)/.test(error.message))return;const issue=new SkillError('Line '+rule.line+': this offer rule cannot calculate a price: '+error.message+' Set numeric price inputs, or replace the offer rule with a reply rule.');issue.line=rule.line;throw issue;}}
+ if(typeof value!=='number'||!Number.isFinite(value)||value<0){const reference=typeof raw==='string'&&/^\$[A-Za-z_]\w*$/.test(raw)?raw.slice(1):'price';const detail=reference==='price'?'the price is missing or is not a non-negative number':reference+' is '+(value==null?'none':JSON.stringify(value));const issue=new SkillError('Line '+rule.line+': this rule sends an offer, but '+detail+'. Set a numeric price, or replace this offer rule with a reply rule.');issue.line=rule.line;throw issue;}}
+ const covered=new Set();for(const rule of skill.rules){if(covered.has('any')||covered.has(rule.event))continue;let definite=!rule.condition;if(rule.condition&&!/\b(message|state|own_price|turn|memory|round|deal|outcome)\b/.test(rule.condition)){const comparisons=splitOutside(rule.condition,' or ').flatMap(group=>splitOutside(group,' and '));if(comparisons.every(part=>/^\s*\$/.test(part)||/^\s*optional\(/.test(part))){try{definite=conditionMatches(rule.condition,{...skill.vars,message:{}});}catch(_){definite=false;}}}if(definite){check(rule.action,rule);covered.add(rule.event);}}
+}
+function parseAction(source){const parts=splitOutside(source,';');if(parts.length>16)throw new SkillError('A rule may contain at most 16 actions.');if(parts.length>1)return {kind:'sequence',actions:parts.map(parseAction)};let m;if((m=source.match(/^(deliver|pay)\s+([\s\S]+)$/i))){const payload=parsePayload(m[2]);if(!payload||Array.isArray(payload)||typeof payload!=='object')throw new SkillError('Performance action requires a JSON object.');return {kind:m[1].toLowerCase(),payload};}if((m=source.match(/^send\s+([A-Za-z_]\w*)\s+([\s\S]+)$/i))){const payload=parsePayload(m[2]);if(!payload||Array.isArray(payload)||typeof payload!=='object')throw new SkillError('send requires a JSON object.');return {kind:'send',type:m[1].toLowerCase(),payload};}if((m=source.match(/^(reply|finish|walkaway|use_alternative)(?:\s+([\s\S]+))?$/i))){const value=m[2]===undefined?'':JSON.parse(m[2]);if(typeof value!=='string')throw new SkillError('Action text must be quoted.');return {kind:m[1].toLowerCase(),text:value};}if(/^(accept|confirm|wait)$/i.test(source))return {kind:source.toLowerCase()};throw new SkillError('Actions: deliver {JSON}, pay {JSON}, send type {JSON}, reply "text", accept, confirm, walkaway "text", finish "text", use_alternative "text", wait.');}
+function resolveValue(value,context){if(typeof value==='string'){if(value.startsWith('$$'))return value.slice(1);if(value.startsWith('$'))return expression(value.slice(1).trim(),context);return value.replace(/\{\{([^{}]+)\}\}/g,(_,expr)=>{const v=expression(expr.trim(),context);return v===null?'none':String(v);});}if(Array.isArray(value))return value.map(v=>resolveValue(v,context));if(value&&typeof value==='object'){const result={};for(const[key,v]of Object.entries(value)){if(['__proto__','constructor','prototype'].includes(key))throw new SkillError('Unsupported message field.');result[key]=resolveValue(v,context);}return result;}return value;}
+function operand(source,context,messageSide=false){source=source.trim();if(source.startsWith('$'))return expression(source.slice(1),context);if(source[0]==='"'||source[0]==="'"||/^(none|null|true|false|-?\d+(?:\.\d+)?)$/.test(source))return expression(source,context);if(messageSide&&own(context.message,source))return context.message[source];if(own(context,source)||source.includes('.')||/[()+*/]/.test(source))return expression(source,context);if(messageSide)return null;return source;}
+function conditionMatches(condition,context){
+ condition=condition.trim();if(!condition)return true;
+ // Unwrap only parentheses enclosing the entire condition, never arithmetic subexpressions.
+ if(condition[0]==='('){let depth=0,quote=null,encloses=true;for(let i=0;i<condition.length;i++){const ch=condition[i];if(quote){if(ch==='\\')i++;else if(ch===quote)quote=null;continue;}if(ch==='"'||ch==="'"){quote=ch;continue;}if(ch==='(')depth++;if(ch===')')depth--;if(depth===0&&i<condition.length-1){encloses=false;break;}}if(encloses&&depth===0)return conditionMatches(condition.slice(1,-1),context);}
+ const ors=splitOutside(condition,' or ');if(ors.length>1)return ors.some(part=>conditionMatches(part,context));const ands=splitOutside(condition,' and ');if(ands.length>1)return ands.every(part=>conditionMatches(part,context));
+ const m=condition.match(/^(.+?)\s*(<=|>=|==|!=|<|>)\s*(.+)$/);if(!m)throw new SkillError('Condition requires a comparison: '+condition);let a=operand(m[1],context,true),b=operand(m[3],context);if(m[2]==='==')return a===b;if(m[2]==='!=')return a!==b;if(a==null||b==null)return false;if(['basic','standard','premium'].includes(a)&&['basic','standard','premium'].includes(b)){const order={basic:0,standard:1,premium:2};a=order[a];b=order[b];}if(typeof a!==typeof b||!['number','string'].includes(typeof a))return false;return m[2]==='<='?a<=b:m[2]==='>='?a>=b:m[2]==='<'?a<b:a>b;
+}
+class RuleAgent{
+ constructor(skill,id){this.id=id;this.skill=copy(skill);this.state={lastSent:null};this.turn=0;}
+ decide(event){this.turn++;const context={...copy(this.skill.vars),message:copy(event.message||{}),event:event.type,own_price:this.state.lastSent?.price??this.skill.vars.opening??null,turn:this.turn,state:copy(this.state),memory:copy(this.memory||{}),round:this.round||1,deal:copy(this.deal||null),outcome:copy(this.outcome||null)};for(const rule of this.skill.rules){if(rule.event!==event.type&&rule.event!=='any')continue;if(conditionMatches(rule.condition,context))return {action:resolveValue(rule.action,context),rule:rule.source,line:rule.line};}return {action:{kind:'wait'},rule:'No matching rule for '+event.type+'. Waiting.'};}
+}
+const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
+const sameTerms=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
+const exactTerms=offer=>{const t=copy(offer);for(const key of ['type','text','offer_id','version','contract_id'])delete t[key];return t;};
+
+function plainValue(value){if(value==null)return 'not specified';if(Array.isArray(value))return value.map(plainValue).join(', ');if(typeof value==='object')return Object.entries(value).map(([key,v])=>key.replace(/_/g,' ')+': '+plainValue(v)).join('; ');return String(value).replace(/_/g,' ');}
+function priceText(price,currency='EUR'){try{return new Intl.NumberFormat('en-IE',{style:'currency',currency}).format(price);}catch(_){return String(price)+' '+currency;}}
+function termsText(terms){const parts=[];let goods='';if(terms.quantity!=null&&terms.item)goods=plainValue(terms.quantity)+' '+plainValue(terms.item);else if(terms.item)goods=plainValue(terms.item);if(typeof terms.price==='number'){let price=priceText(terms.price,terms.currency||'EUR');if(terms.price_basis==='total_including_tax_and_delivery')price+=' in total, including tax and delivery';else if(terms.price_basis)price+=' ('+plainValue(terms.price_basis)+')';goods=goods?goods+' for '+price:'Price: '+price;}if(goods)parts.push(goods);if(terms.quality)parts.push('Quality: '+plainValue(terms.quality));if(terms.delivery_days!=null)parts.push('Delivery: '+(terms.delivery_days===0?'immediate':'within '+terms.delivery_days+' day'+(terms.delivery_days===1?'':'s')));if(terms.payment)parts.push('Payment: '+(terms.payment==='on_delivery'?'on delivery':terms.payment==='upfront'?'in advance':plainValue(terms.payment)));const known=new Set(['quantity','item','price','currency','price_basis','quality','delivery_days','payment','binding']);for(const[key,value]of Object.entries(terms))if(!known.has(key))parts.push(key.replace(/_/g,' ')+': '+plainValue(value));return parts.join('. ');}
+function messageText(message){if(message.type==='offer')return (message.binding?'I offer to supply ':'This is a non-binding quote for ')+termsText(exactTerms(message))+'. '+(message.binding?'This is binding offer ':'Quote ')+message.offer_id+' (version '+message.version+'). It replaces my previous offer.';if(message.type==='acceptance')return 'I accept your offer '+message.offer_id+' (version '+message.version+') on all its terms, without changes: '+termsText(message.terms)+'.';if(message.type==='confirmation')return 'Thank you. Your order is confirmed as contract '+message.contract_id+': '+termsText(message.terms||{})+'.';if(message.text)return message.text;return Object.entries(message).filter(([key])=>key!=='type').map(([key,value])=>key.replace(/_/g,' ')+': '+plainValue(value)).join('; ')||message.type;}
+
+class ContractSimulation{
+ constructor(skills){this.skills=copy(skills);this.agents={buyer:new RuleAgent(skills.buyer,'buyer'),seller:new RuleAgent(skills.seller,'seller')};this.events=[];this.deliveries=[];this.contracts=[];this.offers={};this.sequence=0;this.steps=0;this.done=false;this.reason='';this.queue=[{to:'buyer',type:'start',message:{}},{to:'seller',type:'start',message:{}}];}
+ event(role,text,kind='internal',payload){this.events.push({id:this.events.length+1,role,text,kind,...(payload?{payload:copy(payload)}:{})});}
+ send(from,type,payload){
+ if(!payload||typeof payload!=='object'||Array.isArray(payload))throw new SkillError('A message payload must be an object.');if(['request','counter','offer'].includes(type))validateTradeData(payload);const to=from==='buyer'?'seller':'buyer',message={...copy(payload),type};
+ if(type==='offer'){if(own(message,'binding')&&typeof message.binding!=='boolean')throw new SkillError('binding must be true or false, not text.');message.binding=message.binding===true;const cents=Math.round(message.price*100);if(typeof message.price!=='number'||!Number.isFinite(message.price)||message.price<0||!Number.isSafeInteger(cents))throw new SkillError('An offer needs a non-negative numeric price within safe cent precision.');message.price=cents/100;enforceGuardrails(this.skills[from],'offer',message,this.agents[from]);message.offer_id='O'+(this.sequence+1);message.version=1;}
+ if(type==='acceptance'){const offer=this.offers[to];if(!offer||offer.binding!==true||message.offer_id!==offer.offer_id||message.version!==offer.version||!sameTerms(message.terms,exactTerms(offer)))throw new SkillError('Cannot send an acceptance without a matching current binding offer.');enforceGuardrails(this.skills[from],'acceptance',exactTerms(offer),this.agents[from]);}
+ if(type==='confirmation'){const contract=this.contracts.find(c=>c.id===message.contract_id);if(!contract||contract.offeredBy!==from||message.offer_id!==contract.offer_id||message.version!==contract.version||!sameTerms(message.terms,contract.terms))throw new SkillError('Confirmation requires an existing matching contract.');}
+ if(['offer','acceptance','confirmation'].includes(type)){const canonicalText=messageText(message);if(own(message,'text')&&message.text!==canonicalText)throw new SkillError('Contract wording is generated from structured terms. Remove custom text from '+type+'; use a separate reply for commentary.');message.text=canonicalText;}else if(!message.text)message.text=messageText(message);
+ if(type==='offer'){this.sequence++;this.offers[from]=copy(message);}this.agents[from].state.lastSent=copy(message);this.event(from,message.text,'message',message);this.queue.push({to,from,type,message:copy(message)});return message;
+ }
+
+ form(entry){const offer=this.offers[entry.to],message=entry.message;if(!offer||offer.binding!==true||message.offer_id!==offer.offer_id||message.version!==offer.version||!sameTerms(message.terms,exactTerms(offer)))throw new SkillError('Acceptance does not match the current binding offer.');if(this.contracts.some(c=>c.offer_id===offer.offer_id))return;const contract={id:'C'+((this.contractOffset||0)+this.contracts.length+1),offer_id:offer.offer_id,version:offer.version,terms:exactTerms(offer),acceptedBy:entry.from,offeredBy:entry.to,formedAtStep:this.steps};this.contracts.push(contract);entry.message.contract_id=contract.id;const issuer=this.skills[entry.to].vars.description||this.skills[entry.to].vars.role||'The offeror',acceptor=this.skills[entry.from].vars.description||this.skills[entry.from].vars.role||'the other agent';this.event('platform',`Contract ${contract.id} formed in this simulation: ${issuer} has received ${acceptor}’s unchanged acceptance of offer ${offer.offer_id}.`,'system');}
+ execute(id,event,decision){const a=decision.action;this.event(id,decision.rule,'internal');switch(a.kind){case 'sequence':for(const action of a.actions)this.execute(id,event,{action,rule:'Next action in the matched rule.'});break;case 'send':this.send(id,a.type,a.payload);break;case 'reply':this.send(id,'reply',{text:a.text});break;case 'walkaway':this.send(id,'walkaway',{text:a.text||'I am ending this negotiation.'});break;case 'accept':{if(event.type!=='offer'||event.message.binding!==true)throw new SkillError('accept requires a received binding offer.');this.send(id,'acceptance',{offer_id:event.message.offer_id,version:event.message.version,terms:exactTerms(event.message)});break;}case 'confirm':if(event.type!=='acceptance'||!event.message.contract_id)throw new SkillError('confirm requires a matched acceptance received by this agent.');{const contract=this.contracts.find(c=>c.id===event.message.contract_id);this.send(id,'confirmation',{contract_id:contract.id,offer_id:contract.offer_id,version:contract.version,terms:copy(contract.terms)});}break;case 'finish':this.agents[id].state.finished=true;this.event(id,a.text||'Finished under this skill.');break;case 'use_alternative':this.agents[id].state.finished=true;this.event(id,a.text||'Choose the outside option. No outside contract is executed.');break;case 'wait':break;default:throw new SkillError('Unknown action.');}}
+ next(){if(this.done)return;this.steps++;if(this.steps>(this.actionLimit||40)){this.done=true;this.reason='Public limit of 40 actions reached.';this.event('platform',this.reason,'system');return;}const entry=this.queue.shift();if(!entry){this.done=true;this.reason='No queued messages; agents have finished or are waiting.';return;}try{if(entry.from)this.deliveries.push({recipient:entry.to,message:copy(entry.message)});if(entry.type==='acceptance')this.form(entry);const agent=this.agents[entry.to];if(!agent.state.finished)this.execute(entry.to,entry,agent.decide(entry));if(!this.queue.length){this.done=true;this.reason='No further action is prescribed by either skill.';}}catch(error){this.done=true;this.reason=error.message;this.event(entry.to,'Rule error: '+error.message);this.error={agent:entry.to,message:error.message};}}
+}
+
+// Negotiation mechanics remain in ContractSimulation. This opt-in layer adds
+// bounded encounters, simulated performance, scoped observations and private payoffs.
+const economicNumber=(value,label)=>{if(typeof value!=='number'||!Number.isFinite(value))throw new SkillError(label+' must be a finite number.');return value;};
+function economicValue(skill,key,context){if(!own(skill.vars,key))return null;const raw=skill.vars[key];const value=economicNumber(typeof raw==='string'&&raw.startsWith('$')?expression(raw.slice(1),context):raw,key);if(key==='cost'&&value<0)throw new SkillError('Production/payment cost cannot be negative. Represent subsidies or reimbursements as income.');return value;}
+function freshMemory(){return {encounters:0,observations:0,cooperations:0,breaches:0,last_opponent_cooperated:true,last_quality:null,last_payment:0,total_payoff:0,total_utility:0,discounted_utility:0};}
+class EncounterSimulation extends ContractSimulation{
+ constructor(skills){super(skills);this.phase='negotiation';this.performance={delivery:null,payment:null};this.activeContract=null;}
+ send(from,type,payload,verified=false){if(['delivery','payment','performance','outcome'].includes(type)&&!verified)throw new SkillError('Use deliver/pay actions for verified performance; performance/outcome events belong to the environment.');return super.send(from,type,payload);}
+ execute(id,event,decision){const a=decision.action;if(a.kind!=='deliver'&&a.kind!=='pay')return super.execute(id,event,decision);this.event(id,decision.rule,'internal');if(this.phase!=='performance'||!this.activeContract)throw new SkillError('deliver/pay requires the performance stage of an existing agreement.');const deal=this.activeContract,p=a.payload;
+  if(a.kind==='deliver'){if(id!==deal.offeredBy)throw new SkillError('Only the supplier of this agreement may deliver.');if(this.performance.delivery)throw new SkillError('This agreement already has a delivery.');if(!['basic','standard','premium'].includes(p.quality))throw new SkillError('Delivery quality must be basic, standard or premium.');const days=economicNumber(p.delivery_days,'Delivery days');if(days<0)throw new SkillError('Delivery days cannot be negative.');this.performance.delivery={quality:p.quality,delivery_days:days};this.send(id,'delivery',{contract_id:deal.id,...this.performance.delivery,text:'I deliver '+p.quality+' quality after '+days+' days for '+deal.id+'. This is simulated performance.'},true);
+  }else{if(id!==deal.acceptedBy)throw new SkillError('Only the customer of this agreement may pay.');if(this.performance.payment)throw new SkillError('This agreement already has a payment decision.');if(own(p,'amount')===own(p,'fraction'))throw new SkillError('pay requires either amount or fraction.');let amount;if(own(p,'fraction')){const fraction=economicNumber(p.fraction,'Payment fraction');if(fraction<0||fraction>1)throw new SkillError('Payment fraction must be between 0 and 1.');amount=deal.terms.price*fraction;}else amount=economicNumber(p.amount,'Payment amount');if(amount<0||amount>deal.terms.price)throw new SkillError('Payment must be between zero and the agreed price.');amount=Math.round(amount*100)/100;this.performance.payment={amount};this.send(id,'payment',{contract_id:deal.id,amount,text:amount===0?'I withhold payment for '+deal.id+'. This is simulated non-performance.':'I pay '+priceText(amount,deal.terms.currency)+' for '+deal.id+'. This is a simulated payment.'},true);}
+ }
+}
+class EconomicSession{
+ constructor(skills){this.skills=copy(skills);this.enabled=Object.values(skills).some(skill=>skill.rules.some(rule=>rule.event==='performance'));const counts=Object.values(skills).map(skill=>skill.vars.encounters??1);for(const [id,skill]of Object.entries(skills)){const count=skill.vars.encounters??1;let key=null,message=null;if(!Number.isInteger(count)||count<1||count>20){key='encounters';message='encounters must be an integer from 1 to 20.';}else if(this.enabled&&own(skill.vars,'discount')&&(typeof skill.vars.discount!=='number'||!Number.isFinite(skill.vars.discount)||skill.vars.discount<0||skill.vars.discount>1)){key='discount';message='discount must be between 0 and 1.';}if(message){const error=new SkillError(message);error.agent=id;error.line=skill.source.split('\n').findIndex(line=>line.startsWith(key+':'))+1;throw error;}}this.encounters=this.enabled?Math.min(...counts):1;this.round=0;this.steps=0;this.done=false;this.error=null;this.reason='';this.events=[];this.deliveries=[];this.contracts=[];this.results=[];this.memories={buyer:freshMemory(),seller:freshMemory()};this.sequence=0;this.begin();}
+ event(role,text,kind='internal',payload){this.events.push({id:this.events.length+1,role,text,kind,...(payload?{payload:copy(payload)}:{})});}
+ begin(){this.round++;this.engine=this.enabled?new EncounterSimulation(this.skills):new ContractSimulation(this.skills);this.engine.sequence=this.sequence;this.engine.contractOffset=this.contracts.length;for(const id of ['buyer','seller']){this.engine.agents[id].memory=copy(this.memories[id]);this.engine.agents[id].round=this.round;}this.agents=this.engine.agents;this.cursor=0;this.phase='negotiation';if(this.enabled)this.event('platform','Encounter '+this.round+' of '+this.encounters+'.'+(this.round>1?' A new transaction with the same partner; earlier performance is remembered.':''),'system');}
+ sync(){while(this.cursor<this.engine.events.length){const e=this.engine.events[this.cursor++];this.event(e.role,e.text,e.kind,e.payload);}this.deliveries.push(...this.engine.deliveries.splice(0));this.sequence=this.engine.sequence;}
+ resume(phase,entries){this.phase=phase;this.engine.phase=phase;this.engine.done=false;this.engine.queue=entries;this.engine.actionLimit=this.engine.steps+40;for(const id of ['buyer','seller'])this.engine.agents[id].state.finished=false;}
+ observe(){const e=this.engine,deal=e.activeContract,d=e.performance.delivery,p=e.performance.payment,paid=p?.amount??0;const delivered=!!d,onTime=!!d&&(deal.terms.delivery_days==null||d.delivery_days<=deal.terms.delivery_days),qualityMatches=!!d&&({basic:0,standard:1,premium:2}[d.quality]>={basic:0,standard:1,premium:2}[deal.terms.quality]);const fullPayment=!!p&&paid===deal.terms.price;const publicOutcome={contract_id:deal.id,quality:d?.quality??null,delivery_days:d?.delivery_days??null,paid,delivered,on_time:onTime,quality_matches:qualityMatches,full_payment:fullPayment};const record={round:this.round,contract_id:deal.id,...copy(publicOutcome),agents:{}};
+  // Compute both outcomes before exposing either observation to an agent.
+  for(const id of ['buyer','seller']){const agent=e.agents[id],isCustomer=id===deal.acceptedBy,opponentCooperated=isCustomer?delivered&&qualityMatches&&onTime:fullPayment;const outcome={...copy(publicOutcome),opponent_cooperated:opponentCooperated,payoff:null,utility:null};const context={...copy(agent.skill.vars),message:{},event:'outcome',state:copy(agent.state),own_price:agent.state.lastSent?.price??null,turn:agent.turn,round:this.round,deal:copy(deal),memory:copy(this.memories[id]),outcome};let scored=false;let benefit,income,cost;try{benefit=economicValue(agent.skill,'benefit',context);income=economicValue(agent.skill,'income',context);cost=economicValue(agent.skill,'cost',context);if([benefit,income,cost].every(x=>x!==null)){outcome.payoff=economicNumber(benefit+income-cost,'Realised payoff');outcome.utility=own(agent.skill.vars,'utility')?economicValue(agent.skill,'utility',context):outcome.payoff;scored=true;}}catch(error){error.agent=id;throw error;}
+   const m=this.memories[id];m.encounters++;m.observations++;m.cooperations+=opponentCooperated?1:0;m.breaches+=opponentCooperated?0:1;m.last_opponent_cooperated=opponentCooperated;m.last_quality=publicOutcome.quality;m.last_payment=paid;if(scored){const discount=agent.skill.vars.discount??1;if(typeof discount!=='number'||!Number.isFinite(discount)||discount<0||discount>1){const error=new SkillError('discount must be between 0 and 1.');error.agent=id;throw error;}m.total_payoff=economicNumber(m.total_payoff+outcome.payoff,'Cumulative payoff');m.total_utility=economicNumber(m.total_utility+outcome.utility,'Cumulative utility');m.discounted_utility=economicNumber(m.discounted_utility+Math.pow(discount,this.round-1)*outcome.utility,'Discounted utility');}
+   agent.memory=copy(m);agent.outcome=copy(outcome);record.agents[id]={...copy(outcome),benefit:benefit??null,income:income??null,cost:cost??null,memory:copy(m)};this.event(id,'Encounter '+this.round+': '+(scored?'realised payoff '+outcome.payoff.toFixed(2)+'; utility '+outcome.utility.toFixed(2)+'; cumulative payoff '+m.total_payoff.toFixed(2)+'; discounted cumulative utility '+m.discounted_utility.toFixed(2)+'.':'Private payoff not calculated: define benefit, income and cost.')+' Opponent fulfilled its obligation: '+(opponentCooperated?'yes':'no')+'. Observed cooperation: '+m.cooperations+'/'+m.observations+'.','internal');
+  }
+  this.results.push(record);this.event('platform','Observed outcome for '+deal.id+': '+(d?d.quality+' quality delivered after '+d.delivery_days+' days':'no delivery')+'; '+priceText(paid,deal.terms.currency)+' paid'+(p?'':' (no payment decision)')+'. Agreement and performance are separate.','system');
+  this.resume('feedback',['buyer','seller'].map(to=>({to,type:'outcome',message:{...copy(publicOutcome),opponent_cooperated:record.agents[to].opponent_cooperated}})));
+ }
+ writeSummary(status='complete'){
+  if(this.summaryWritten)return;this.summaryWritten=true;
+  const agreements=[...this.contracts];for(const deal of this.engine?.contracts||[])if(!agreements.some(c=>c.id===deal.id))agreements.push(copy(deal));
+  const heading=status==='complete'?'Completed.':status==='stopped'?'Stopped by you.':status==='edited'?'Stopped for a skill edit. Existing agreements are unchanged.':status==='limit'?'Stopped at the simulation limit.':'Stopped because of a rule error.';
+  const shared=[heading];if(!agreements.length){shared.push('No agreement recorded.');const last=this.events.filter(e=>e.kind==='message'&&['walkaway','reply'].includes(e.payload?.type)).at(-1);if(last)shared.push('Last response: '+last.text);}else{
+   for(const deal of agreements){shared.push(deal.id+': '+termsText(deal.terms)+'.');const result=this.results.find(r=>r.contract_id===deal.id);if(result){shared.push('Delivery: '+(result.delivered?result.quality+' quality after '+result.delivery_days+' days'+(result.quality_matches&&result.on_time?' — as promised.':'.'):'not delivered.'));shared.push('Payment: '+priceText(result.paid,deal.terms.currency)+' of '+priceText(deal.terms.price,deal.terms.currency)+(result.full_payment?' — paid in full.':' — not paid in full.'));if(result.delivered&&!result.quality_matches)shared.push('Risk observed: quality below the promised grade.');if(result.delivered&&!result.on_time)shared.push('Risk observed: delivery later than promised.');}else shared.push(this.enabled?'Performance not yet evaluated.':'Performance was not simulated by these skills.');}
+  }
+  if(status==='error'||status==='limit')shared.push('Reason: '+this.reason);if(agreements.length)shared.push('Model assumptions: product feasibility and market values are not independently verified.');
+  for(const id of ['buyer','seller']){const lines=[...shared],scored=this.results.filter(r=>typeof r.agents[id]?.payoff==='number'),m=this.memories[id];if(scored.length){for(const r of scored){const a=r.agents[id];lines.push('Your calculation for '+r.contract_id+': benefit '+a.benefit.toFixed(2)+' + income '+a.income.toFixed(2)+' − cost '+a.cost.toFixed(2)+' = payoff '+a.payoff.toFixed(2)+'.');}lines.push('Your private result: total payoff '+m.total_payoff.toFixed(2)+'; utility '+m.total_utility.toFixed(2)+'; discounted utility '+m.discounted_utility.toFixed(2)+'.');if(scored.length<this.results.length)lines.push('Payoff calculated for '+scored.length+' of '+this.results.length+' evaluated agreements.');lines.push('Your observed history: '+m.cooperations+' fulfilled, '+m.breaches+' unfulfilled opponent obligations.');}else lines.push(agreements.length?'Private payoff not calculated.':'No transaction payoff calculated.');this.event(id,lines.join('\n'),'summary',{status,private:true});}
+ }
+ stop(status='stopped'){if(this.done)return;this.done=true;this.reason=status==='edited'?'Stopped for a skill edit.':'Stopped by the user.';this.writeSummary(status);}
+ completeEncounter(){if(this.round<this.encounters){this.begin();return;}this.done=true;this.reason=this.engine.reason;if(this.enabled){const count=(n,word)=>n+' '+word+(n===1?'':'s');this.event('platform','Session complete: '+count(this.round,'encounter')+'; '+count(this.contracts.length,'agreement')+'; '+count(this.results.filter(r=>r.delivered).length,'delivery').replace('deliverys','deliveries')+'; '+count(this.results.filter(r=>r.full_payment).length,'full payment')+'. No further encounters are scheduled. A student summary follows.','system',{status:'complete'});}this.writeSummary('complete');}
+
+ next(){if(this.done)return;this.steps++;if(this.steps>2400){this.done=true;this.reason='Session limit reached.';this.event('platform',this.reason,'system');this.writeSummary('limit');return;}try{this.engine.next();this.sync();if(this.engine.error){this.error=this.engine.error;this.done=true;this.reason=this.engine.reason;this.writeSummary('error');return;}if(!this.engine.done)return;if(/40 actions/.test(this.engine.reason)){this.done=true;this.reason=this.engine.reason;this.writeSummary('limit');return;}
+   if(this.phase==='negotiation'){this.contracts.push(...copy(this.engine.contracts));if(this.enabled&&this.engine.contracts.length){if(this.engine.contracts.length!==1)throw new SkillError('Repeated encounters support one agreement per encounter.');const deal=this.engine.contracts[0];this.engine.activeContract=copy(deal);for(const id of ['buyer','seller'])this.engine.agents[id].deal=copy(deal);this.resume('performance',[deal.offeredBy,deal.acceptedBy].map(to=>({to,type:'performance',message:{contract_id:deal.id,terms:copy(deal.terms)}})));return;}for(const id of ['buyer','seller'])this.memories[id].encounters++;this.completeEncounter();return;}
+   if(this.phase==='performance'){this.observe();return;}this.completeEncounter();
+  }catch(error){const agent=error.agent||this.engine.error?.agent||'buyer';this.error={agent,message:error.message};this.reason=error.message;this.done=true;this.event(agent,'Rule error: '+error.message,'internal');this.writeSummary('error');}}
+}
+</script><script>const $=id=>document.getElementById(id);
+const DEFAULT_BUYER=String.raw`description: Customer
+role: Purchasing representative
+goal: Obtain suitable water bottles without exceeding the price limit.
+item: crates of water bottles
+quantity: 20
+currency: EUR
+price_basis: total_including_tax_and_delivery
+opening: 120
+fallback: 150
+batna: 145
+limit: $min_set(optional('fallback'), optional('batna'))
+can_accept: true
+step: 5
+min_quality: standard
+max_delivery: 5
+payment: on delivery
+max_turns: 7
+
+when start -> send request {"text":"Please quote for {{quantity}} {{item}}. I propose €{{opening}} in total, including tax and delivery. Please issue an offer; this is not an order.","item":"$item","quantity":"$quantity","price":"$opening","currency":"$currency","price_basis":"$price_basis"}
+when offer if optional('can_accept') == false -> reply "I need human approval before accepting an offer."
+when offer if message.binding == true and message.item == $item and message.quantity == $quantity and message.currency == $currency and message.price_basis == $price_basis and (optional('limit') == none or message.price <= $limit) and (optional('min_quality') == none or message.quality >= $min_quality) and (optional('max_delivery') == none or message.delivery_days <= $max_delivery) and (optional('payment') == none or message.payment == $payment) -> accept
+when offer if message.binding == false -> walkaway "I need a binding offer."
+when offer if turn >= optional('max_turns') -> walkaway "We have not reached acceptable terms."
+when offer -> send counter {"text":"Could you revise your offer to €{{min_set(own_price + step, optional('limit'))}} in total, including tax and delivery? The requested conditions are attached. This is a request, not acceptance.","price":"$min_set(own_price + step, optional('limit'))","item":"$item","quantity":"$quantity","currency":"$currency","price_basis":"$price_basis","quality":"$optional('min_quality')","delivery_days":"$optional('max_delivery')","payment":"$optional('payment')"}
+when reply -> finish "A reply is not an offer. No acceptance sent."
+when confirmation -> finish "The agreement is confirmed."
+when walkaway if optional('batna') == none -> finish "No agreement. No outside alternative is specified."
+when walkaway -> use_alternative "Use the alternative supplier at €{{batna}}. No outside purchase is executed."`;
+const DEFAULT_SUPPLIER=String.raw`description: Supplier
+role: Sales representative
+goal: Sell only on authorised terms.
+currency: EUR
+price_basis: total_including_tax_and_delivery
+opening: 155
+fallback: 140
+batna: 138
+limit: $max_set(optional('fallback'), optional('batna'))
+can_offer: true
+step: 5
+quality: standard
+delivery_days: 3
+payment: on delivery
+binding: true
+stock: 100
+
+when request if optional('can_offer') == false -> reply "I am not authorised to issue offers. A human must approve."
+when request if message.quantity > optional('stock') -> walkaway "There is insufficient stock."
+when request -> send offer {"price":"$max_set(opening, optional('limit'))","currency":"$currency","price_basis":"$price_basis","item":"$message.item","quantity":"$message.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when counter if message.currency != none and message.currency != currency -> walkaway "I cannot offer that currency."
+when counter if message.price_basis != none and message.price_basis != price_basis -> walkaway "I cannot offer that price basis."
+when counter if message.quality != none and message.quality > quality -> walkaway "I cannot provide that quality."
+when counter if message.delivery_days != none and message.delivery_days < delivery_days -> walkaway "I cannot meet that delivery date."
+when counter if message.payment != none and message.payment != payment -> walkaway "I cannot accept those payment terms."
+when counter if optional('can_offer') == false -> reply "I am not authorised to issue revised offers."
+when counter if optional('limit') == none or message.price >= $limit -> send offer {"price":"$min(message.price, own_price)","currency":"$currency","price_basis":"$price_basis","item":"$state.lastSent.item","quantity":"$state.lastSent.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when counter -> send offer {"price":"$max_set(own_price - step, optional('limit'), 0)","currency":"$currency","price_basis":"$price_basis","item":"$state.lastSent.item","quantity":"$state.lastSent.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when acceptance -> confirm
+when walkaway if optional('batna') == none -> finish "No agreement. No outside alternative is specified."
+when walkaway -> use_alternative "Choose the other buyer at €{{batna}}. No outside transaction is executed."`;
+const CUSTOMER_SERVICE_SKILL=`description: Customer Service
+role: Customer Service
+goal: Help customers. Do not negotiate or conclude contracts.
+opening: none
+fallback: none
+batna: none
+
+when request -> reply "I can help with your request, but I am not authorised to quote prices or make a contract. A sales representative must provide an offer."
+when counter -> reply "I cannot negotiate prices. I can refer you to sales."
+when offer -> reply "I cannot accept an offer. I can refer this to the appropriate team."
+when reply -> finish "The enquiry has been handled."
+when walkaway -> finish "The enquiry is closed."`;
+const ECONOMIC_BUYER=String.raw`description: Customer
+role: Purchasing representative
+goal: Seek a lower price and positive expected value; consider reliability over repeated encounters.
+
+# Guardrails
+fallback: 150
+batna: 145
+limit: $min_set(optional('fallback'), optional('batna'))
+can_accept: true
+min_quality: standard
+max_delivery: 5
+required_payment: on delivery
+max_turns: 7
+
+# Skill & economics
+item: crates of water bottles
+quantity: 20
+currency: EUR
+price_basis: total_including_tax_and_delivery
+opening: 120
+step: 5
+encounters: 1
+value_basic: 40
+value_standard: 200
+value_premium: 240
+prior_good: 9
+prior_bad: 1
+belief: $(prior_good + memory.cooperations) / (prior_good + prior_bad + memory.observations)
+expected_value: $belief * quality_value(message.quality, value_basic, value_standard, value_premium) + (1 - belief) * value_basic
+expected_surplus: $expected_value - message.price
+aspiration: $min_set(opening + step * turn, optional('limit'))
+reference_surplus: 0
+gain_exponent: 1
+loss_exponent: 1
+loss_weight: 1
+minimum_offer_utility: 0
+offer_utility: $prospect(expected_surplus - reference_surplus, gain_exponent, loss_exponent, loss_weight)
+payment_fraction: 1
+benefit: $quality_value(outcome.quality, value_basic, value_standard, value_premium)
+income: 0
+cost: $outcome.paid
+utility: $prospect(outcome.payoff - reference_surplus, gain_exponent, loss_exponent, loss_weight)
+discount: 0.95
+
+when start -> send request {"text":"Please quote for {{quantity}} {{item}}. I propose €{{opening}} in total, including tax and delivery. Please issue an offer; this is not an order.","item":"$item","quantity":"$quantity","price":"$opening","currency":"$currency","price_basis":"$price_basis"}
+when offer if optional('can_accept') == false -> reply "I need human approval before accepting an offer."
+when offer if message.binding == true and message.item == $item and message.quantity == $quantity and message.currency == $currency and message.price_basis == $price_basis and (optional('limit') == none or message.price <= $limit) and (optional('min_quality') == none or message.quality >= $min_quality) and (optional('max_delivery') == none or message.delivery_days <= $max_delivery) and (optional('required_payment') == none or message.payment == $required_payment) and $expected_surplus >= 0 and $offer_utility >= $minimum_offer_utility and (message.price <= $aspiration or turn >= optional('max_turns')) -> accept
+when offer if message.binding == false -> walkaway "I need a binding offer."
+when offer if turn >= optional('max_turns') -> walkaway "We have not reached acceptable terms."
+when offer -> send counter {"text":"Could you revise your offer to €{{aspiration}} in total, including tax and delivery? The requested conditions are attached. This is a request, not acceptance.","price":"$aspiration","item":"$item","quantity":"$quantity","currency":"$currency","price_basis":"$price_basis","quality":"$optional('min_quality')","delivery_days":"$optional('max_delivery')","payment":"$optional('required_payment')"}
+when reply -> finish "A reply is not an offer. No acceptance sent."
+when confirmation -> finish "The agreement is confirmed."
+when walkaway if optional('batna') == none -> finish "No agreement. No outside alternative is specified."
+when walkaway -> use_alternative "Use the alternative supplier at €{{batna}}. No outside purchase is executed."
+when performance if memory.last_opponent_cooperated == false -> pay {"fraction":0}
+when performance -> pay {"fraction":"$payment_fraction"}
+when outcome -> finish "Observed the outcome. Carry the observation into the next encounter."`;
+const ECONOMIC_SUPPLIER=String.raw`description: Supplier
+role: Sales representative
+goal: Seek a higher profitable price; respond to payment behaviour over repeated encounters.
+
+# Guardrails
+fallback: 140
+batna: 138
+limit: $max_set(optional('fallback'), optional('batna'))
+can_offer: true
+stock: 100
+
+# Skill & economics
+currency: EUR
+price_basis: total_including_tax_and_delivery
+opening: 155
+step: 5
+encounters: 1
+quality: standard
+actual_quality: standard
+delivery_days: 3
+payment: on delivery
+binding: true
+cost_basic: 60
+cost_standard: 100
+cost_premium: 130
+production_cost: $quality_value(actual_quality, cost_basic, cost_standard, cost_premium)
+benefit: 0
+income: $outcome.paid
+cost: $quality_value(outcome.quality, cost_basic, cost_standard, cost_premium)
+utility: $outcome.payoff
+discount: 0.95
+
+when request if optional('can_offer') == false -> reply "I am not authorised to issue offers. A human must approve."
+when request if message.quantity > optional('stock') -> walkaway "There is insufficient stock."
+when request -> send offer {"price":"$max_set(opening, optional('limit'), production_cost)","currency":"$currency","price_basis":"$price_basis","item":"$message.item","quantity":"$message.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when counter if message.currency != none and message.currency != currency -> walkaway "I cannot offer that currency."
+when counter if message.price_basis != none and message.price_basis != price_basis -> walkaway "I cannot offer that price basis."
+when counter if message.quality != none and message.quality > quality -> walkaway "I cannot provide that quality."
+when counter if message.delivery_days != none and message.delivery_days < delivery_days -> walkaway "I cannot meet that delivery date."
+when counter if message.payment != none and message.payment != payment -> walkaway "I cannot accept those payment terms."
+when counter if optional('can_offer') == false -> reply "I am not authorised to issue revised offers."
+when counter if (optional('limit') == none or message.price >= $limit) and message.price >= $production_cost -> send offer {"price":"$min(message.price, own_price)","currency":"$currency","price_basis":"$price_basis","item":"$state.lastSent.item","quantity":"$state.lastSent.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when counter -> send offer {"price":"$max_set(own_price - step, optional('limit'), production_cost, 0)","currency":"$currency","price_basis":"$price_basis","item":"$state.lastSent.item","quantity":"$state.lastSent.quantity","quality":"$optional('quality')","delivery_days":"$optional('delivery_days')","payment":"$optional('payment')","binding":"$binding"}
+when acceptance -> confirm
+when walkaway if optional('batna') == none -> finish "No agreement. No outside alternative is specified."
+when walkaway -> use_alternative "Choose the other buyer at €{{batna}}. No outside transaction is executed."
+when performance if memory.last_opponent_cooperated == false -> deliver {"quality":"basic","delivery_days":"$delivery_days"}
+when performance -> deliver {"quality":"$actual_quality","delivery_days":"$delivery_days"}
+when outcome -> finish "Observed the outcome. Carry the observation into the next encounter."`;
+function splitSkillSections(source){
+ const parts={role:[],guards:[],skill:[]};let section='auto';
+ for(const line of source.split('\n')){if(/^\s*#\s*Guardrails\s*$/i.test(line)){section='guards';continue;}if(/^\s*#\s*Skill\s*&?\s*economics\s*$/i.test(line)){section='skill';continue;}
+  if(/^\s*(description|role|goal)\s*:/.test(line)){parts.role.push(line);continue;}
+  const conventional=/^\s*(fallback|batna|limit|can_accept|can_offer|min_quality|max_delivery|required_payment|max_turns|stock)\s*:/.test(line);
+  parts[section==='guards'?'guards':section==='auto'&&conventional?'guards':'skill'].push(line);
+ }return Object.fromEntries(Object.entries(parts).map(([key,lines])=>[key,lines.join('\n').trim()]));
+}
+function loadSkillSections(slot,source){const p=splitSkillSections(source);$(slot+'Role').value=p.role;$(slot+'Guardrails').value=p.guards;$(slot+'Skill').value=p.skill;$(slot+'GuardsEnabled').checked=true;$(slot+'GuardStatus').textContent='· on';}
+function composeSkill(slot){const enabled=$(slot+'GuardsEnabled').checked;$(slot+'GuardStatus').textContent=enabled?'· on':'· off';return $(slot+'Role').value+'\n\n# Guardrails\n'+(enabled?$(slot+'Guardrails').value:'')+'\n\n# Skill & economics\n'+$(slot+'Skill').value;}
+const skillText=skill=>skill.source;
+const parseSkill=source=>compileSkill(source);
+const defaults=()=>({buyer:compileSkill(ECONOMIC_BUYER),seller:compileSkill(ECONOMIC_SUPPLIER)});
+let configured=defaults(),simulation=null,runner=null,editTimer=null,paused=false,stopped=false;
+const dirty={buyer:false,seller:false};
+function updateControls(){$('start').textContent=runner?'Running…':stopped&&simulation?'Start new run':simulation?.done?'Run again':'Start';$('start').disabled=!!runner||paused;$('pause').disabled=!runner&&!paused;$('pause').textContent=paused?'Resume':'Pause';$('stop').disabled=!runner&&!paused;$('step').disabled=!!runner;}
+function halt(){if(runner)clearInterval(runner);runner=null;paused=false;updateControls();}
+function render(){for(const slot of ['buyer','seller']){const vars=configured[slot].vars,label=String(vars.description||vars.role||'Agent');$(slot+'Name').textContent=label;$(slot+'Name').closest('.chat').setAttribute('aria-label',label+' agent');$(slot+'Skill').setAttribute('aria-label','Private '+label+' skill');const feed=$(slot+'Feed');feed.setAttribute('aria-label',label+' conversation');feed.replaceChildren();for(const event of simulation?.events||[]){if(event.kind==='internal'||event.kind==='summary'&&event.role!==slot)continue;const box=document.createElement('div');box.className='message '+(event.payload?.status==='complete'&&event.kind!=='summary'?'complete ':'')+(event.kind==='message'?(event.role===slot?'sent':'received'):event.kind);const meta=document.createElement('div');meta.className='meta';meta.textContent=event.kind==='summary'?'Summary · student view':event.kind==='message'?(event.role===slot?'Sent':'Received'):event.kind==='internal'?'Private rule · student view':event.payload?.status==='complete'?'Finished · student view':'Observer · student view';const content=document.createElement('div');content.textContent=event.text+(event.kind==='summary'?'\nGuardrails: '+((simulation?.guardrailsState?.[slot]??$(slot+'GuardsEnabled').checked)?'on.':'off.'):'');box.append(meta,content);feed.append(box);}feed.scrollTop=feed.scrollHeight;$(slot+'Trace').textContent=(simulation?.events||[]).filter(event=>event.role===slot&&event.kind==='internal').map(event=>event.text).join('\n\n')||'No rules executed yet.';}}
+function tick(){simulation.next();if(simulation.error)$(simulation.error.agent+'Error').textContent=simulation.error.message;if(simulation.done)halt();render();}
+function revealSkillError(){for(const slot of ['buyer','seller']){const error=$(slot+'Error');if(!error.textContent)continue;$(slot+'Editor').hidden=false;$(slot+'Toggle').setAttribute('aria-expanded','true');const source=composeSkill(slot),line=Number(error.dataset.line)||1,text=source.split('\n')[line-1]||'';let target='Skill';for(const suffix of ['Role','Guardrails','Skill'])if(text&&$(slot+suffix).value.split('\n').includes(text)){target=suffix;break;}const panel=$(slot+(target==='Role'?'RolePanel':target==='Guardrails'?'GuardrailsPanel':'BehaviorPanel'));panel.open=true;const editor=$(slot+target);editor.focus();const start=text?editor.value.indexOf(text):0;editor.setSelectionRange(Math.max(0,start),Math.max(0,start)+text.length);return;}}
+
+function ensureSession(){if(!applyEdits()){revealSkillError();return false;}if(!simulation||simulation.done||stopped){try{simulation=new EconomicSession(configured);simulation.guardrailsState={buyer:$('buyerGuardsEnabled').checked,seller:$('sellerGuardsEnabled').checked};}catch(error){const slot=error.agent||'buyer';$(slot+'Error').textContent=error.message;$(slot+'Error').dataset.line=String(error.line||1);revealSkillError();return false;}}stopped=false;return true;}
+function start(){if(runner)return;if(!ensureSession())return;paused=false;runner=setInterval(tick,1100);updateControls();tick();}
+function step(){if(runner)return;if(!ensureSession())return;paused=true;const seen=()=>simulation.events.filter(event=>event.kind!=='internal').length,before=seen();for(let i=0;i<50&&!simulation.done&&!simulation.error;i++){tick();if(seen()>before)break;}updateControls();}
+function applyEdits(){if(editTimer)clearTimeout(editTimer);editTimer=null;const next=copy(configured);let invalid=false;for(const slot of ['buyer','seller']){if(!dirty[slot])continue;try{next[slot]=compileSkill(composeSkill(slot));$(slot+'Error').textContent='';delete $(slot+'Error').dataset.line;}catch(error){$(slot+'Error').textContent=error.message;$(slot+'Error').dataset.line=String(error.line||Number(error.message.match(/^Line (\d+):/)?.[1])||1);invalid=true;}}if(invalid)return false;const changed=dirty.buyer||dirty.seller;configured=next;for(const slot of ['buyer','seller'])dirty[slot]=false;if(changed&&simulation)stopped=true;render();updateControls();return true;}
+for(const slot of ['buyer','seller']){
+ loadSkillSections(slot,configured[slot].source);
+ $(slot+'Toggle').onclick=()=>{const panel=$(slot+'Editor');panel.hidden=!panel.hidden;$(slot+'Toggle').setAttribute('aria-expanded',String(!panel.hidden));};
+ function changed(){halt();if(simulation){if(!simulation.done)simulation.stop('edited');if(!stopped)simulation.event('platform','Skills changed. The previous run is preserved. Press Start new run to apply the edited setup with fresh memory.','system');stopped=true;}dirty[slot]=true;render();updateControls();if(editTimer)clearTimeout(editTimer);editTimer=setTimeout(applyEdits,1000);}
+ for(const suffix of ['Role','Guardrails','Skill']){const editor=$(slot+suffix);editor.addEventListener('input',()=>{
+  // Pasting a complete example into the skill editor imports its three sections.
+  if(suffix==='Skill'&&/^\s*(?:(description|role|goal)\s*:|#\s*Guardrails\s*$)/m.test(editor.value))loadSkillSections(slot,editor.value);
+  changed();
+ });editor.addEventListener('blur',()=>{if(dirty.buyer||dirty.seller)applyEdits();});editor.addEventListener('keydown',event=>{if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();applyEdits();}});}
+ $(slot+'GuardsEnabled').addEventListener('change',()=>{changed();applyEdits();});
+}
+$('start').onclick=start;$('step').onclick=step;$('pause').onclick=()=>{if(runner){halt();paused=true;updateControls();}else if(paused)start();};$('stop').onclick=()=>{stopped=true;halt();if(simulation&&!simulation.done)simulation.stop();render();updateControls();};$('reset').onclick=()=>{halt();if(editTimer)clearTimeout(editTimer);editTimer=null;simulation=null;stopped=false;render();updateControls();};updateControls();render();
+</script></body></html>
